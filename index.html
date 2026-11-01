@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Basic Page Information -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FitStreak | Fitness & Habit Tracker</title>
+
+    <!-- SEO Meta Tags -->
+    <meta
+        name="description"
+        content="FitStreak helps you track daily workouts, build healthy habits, monitor your fitness streaks, and stay consistent with your wellness goals."
+    >
+
+    <meta
+        name="keywords"
+        content="FitStreak, fitness tracker, workout log, daily habits, healthy lifestyle, workout progress, habit tracker"
+    >
+
+    <meta name="author" content="FitStreak">
+
+    <meta name="robots" content="index, follow">
+
+    <!-- Browser Theme Color -->
+    <meta name="theme-color" content="#173f35">
+
+    <meta name="color-scheme" content="light">
+
+    <!-- Social Media Preview -->
+    <meta property="og:title" content="FitStreak | Fitness & Habit Tracker">
+
+    <meta
+        property="og:description"
+        content="Track workouts, build healthy habits, and celebrate your fitness progress every day with FitStreak."
+    >
+
+    <meta property="og:type" content="website">
+
+    <!-- Browser Tab Icon -->
+    <link
+        rel="icon"
+        type="image/png"
+        href="./fitstreak-favicon.png"
+    >
+
+    <!-- Optional Apple Device Icon -->
+    <link
+        rel="apple-touch-icon"
+        href="./fitstreak-favicon.png"
+    >
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="#dashboard" class="brand">
+            <span class="brand-icon">✦</span>
+            FitStreak
+        </a>
+
+        <div class="nav-links">
+            <a href="#dashboard">Dashboard</a>
+            <a href="#workouts">Workouts</a>
+            <a href="#habits">Daily Habits</a>
+        </div>
+    </nav>
+
+    <main class="container" id="dashboard">
+
+        <section class="welcome-card">
+            <div class="welcome-content">
+                <span class="eyebrow">YOUR FITNESS JOURNEY</span>
+                <h1>Small steps.<br>Stronger you.</h1>
+                <p>Build healthy habits, track your workouts, and celebrate your progress one day at a time.</p>
+                <a href="#workouts" class="primary-link">Track a workout <span>→</span></a>
+            </div>
+
+            <div class="welcome-decoration" aria-hidden="true">
+                <div class="circle circle-one"></div>
+                <div class="circle circle-two"></div>
+                <div class="welcome-symbol">✦</div>
+            </div>
+        </section>
+
+        <section class="stats-grid" aria-label="Your fitness statistics">
+            <article class="stat-card stat-green">
+                <div class="stat-top">
+                    <span class="stat-label">Today's Workouts</span>
+                    <span class="stat-icon">🏃</span>
+                </div>
+                <p class="number" id="workoutCount">0</p>
+                <p class="stat-caption">Workouts completed today</p>
+            </article>
+
+            <article class="stat-card stat-purple">
+                <div class="stat-top">
+                    <span class="stat-label">Daily Habits</span>
+                    <span class="stat-icon">✓</span>
+                </div>
+                <p class="number" id="habitCount">0 / 3</p>
+                <p class="stat-caption">Habits completed today</p>
+                <div class="progress-track">
+                    <div class="progress-fill" id="habitProgress"></div>
+                </div>
+            </article>
+
+            <article class="stat-card stat-orange">
+                <div class="stat-top">
+                    <span class="stat-label">Current Streak</span>
+                    <span class="stat-icon">🔥</span>
+                </div>
+                <p class="number" id="streakCount">0 days</p>
+                <p class="stat-caption">Keep your momentum going!</p>
+            </article>
+        </section>
+
+        <section class="content-grid">
+
+            <article class="panel workout-panel" id="workouts">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">MOVE YOUR BODY</span>
+                        <h2>Workout Tracker</h2>
+                        <p class="section-description">Every workout counts. Log your activity below.</p>
+                    </div>
+                    <span class="heading-icon">💪</span>
+                </div>
+
+                <form id="workoutForm" class="workout-form">
+                    <div class="field">
+                        <label for="exercise">Exercise name</label>
+                        <input
+                            type="text"
+                            id="exercise"
+                            placeholder="e.g. Walking, Yoga, Running"
+                            required
+                            maxlength="100"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="duration">Duration (minutes)</label>
+                        <input
+                            type="number"
+                            id="duration"
+                            placeholder="e.g. 20"
+                            min="1"
+                            max="1440"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="primary-button">
+                        <span>＋</span> Add Workout
+                    </button>
+                </form>
+
+                <div class="list-heading">
+                    <h3>Today's Activity</h3>
+                    <span class="today-badge">TODAY</span>
+                </div>
+
+                <ul id="workoutList" class="workout-list"></ul>
+                <p id="emptyWorkouts" class="empty-state">
+                    <span>🌱</span>
+                    No workouts yet today. Your first step starts here!
+                </p>
+            </article>
+
+            <article class="panel habits-panel" id="habits">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">DAILY ROUTINE</span>
+                        <h2>Healthy Habits</h2>
+                        <p class="section-description">Little habits create big changes.</p>
+                    </div>
+                    <span class="heading-icon">🌿</span>
+                </div>
+
+                <div class="habit-summary">
+                    <div>
+                        <strong id="habitSummary">0 of 3 completed</strong>
+                        <p>Your daily progress</p>
+                    </div>
+                    <span class="habit-summary-icon">✨</span>
+                </div>
+
+                <div class="habit-list">
+                    <label class="habit-row">
+                        <input type="checkbox" class="habit" data-habit="0">
+                        <span class="custom-check"></span>
+                        <span class="habit-emoji">💧</span>
+                        <span class="habit-text">
+                            <strong>Drink enough water</strong>
+                            <small>Stay hydrated throughout the day</small>
+                        </span>
+                    </label>
+
+                    <label class="habit-row">
+                        <input type="checkbox" class="habit" data-habit="1">
+                        <span class="custom-check"></span>
+                        <span class="habit-emoji">🏋️</span>
+                        <span class="habit-text">
+                            <strong>Exercise for 20 minutes</strong>
+                            <small>Give your body some movement</small>
+                        </span>
+                    </label>
+
+                    <label class="habit-row">
+                        <input type="checkbox" class="habit" data-habit="2">
+                        <span class="custom-check"></span>
+                        <span class="habit-emoji">🌙</span>
+                        <span class="habit-text">
+                            <strong>Sleep on time</strong>
+                            <small>Make rest part of your routine</small>
+                        </span>
+                    </label>
+                </div>
+
+                <p class="habit-footer">✨ Consistency matters more than perfection.</p>
+            </article>
+
+        </section>
+
+        <footer class="footer">
+            <p>Made with 💚 for a healthier you.</p>
+            <span>One day at a time · One habit at a time</span>
+        </footer>
+
+    </main>
+
+    <!-- Delete confirmation modal -->
+    <div
+        class="delete-modal"
+        id="deleteModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="deleteModalTitle"
+        aria-describedby="deleteModalMessage"
+        hidden
+    >
+        <div class="delete-modal-box">
+            <div class="modal-icon">🗑️</div>
+            <h2 id="deleteModalTitle">Delete workout?</h2>
+            <p id="deleteModalMessage">Are you sure you want to delete this workout?</p>
+
+            <div class="delete-modal-actions">
+                <button type="button" id="cancelDelete" class="cancel-button">
+                    Keep it
+                </button>
+                <button type="button" id="confirmDelete" class="confirm-button">
+                    Yes, delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./script.js" defer></script>
+</body>
+</html>
