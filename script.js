@@ -16,62 +16,42 @@ const totalMinutesSummary =
     document.getElementById("totalMinutesSummary");
 const activityHeading =
     document.getElementById("activityHeading");
+const historyViewBadge =
+    document.getElementById("historyViewBadge");
 
-const habitCheckboxes = Array.from(
-    document.querySelectorAll(".habit")
-);
+const habitCheckboxes = [
+    ...document.querySelectorAll(".habit")
+];
 
 const habitCount = document.getElementById("habitCount");
 const habitProgress = document.getElementById("habitProgress");
 const habitSummary = document.getElementById("habitSummary");
 const streakCount = document.getElementById("streakCount");
 
-const deleteModal = document.getElementById("deleteModal");
-const cancelDelete = document.getElementById("cancelDelete");
-const confirmDelete = document.getElementById("confirmDelete");
-
 let workouts = loadData(WORKOUTS_KEY, []);
 let savedHabits = loadData(HABITS_KEY, {});
 
 let editingWorkoutIndex = null;
-let pendingDeleteIndex = null;
-let previousFocusedElement = null;
-
-let selectedHistoryDate;
+let selectedHistoryDate = getLocalDate();
 let showingAllWorkouts = false;
-
-/* DATA FUNCTIONS */
 
 function loadData(key, fallback) {
     try {
-        const savedData = localStorage.getItem(key);
-
-        if (savedData === null) {
-            return fallback;
-        }
-
-        return JSON.parse(savedData);
+        const saved = localStorage.getItem(key);
+        return saved ? JSON.parse(saved) : fallback;
     } catch (error) {
-        console.error(`Could not load ${key}:`, error);
+        console.error("Could not load data:", error);
         return fallback;
     }
 }
 
 function getLocalDate(date = new Date()) {
     const year = date.getFullYear();
-    const month = String(
-        date.getMonth() + 1
-    ).padStart(2, "0");
-    const day = String(
-        date.getDate()
-    ).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
 }
-
-selectedHistoryDate = getLocalDate();
-
-/* WORKOUT STORAGE */
 
 function saveWorkouts() {
     try {
@@ -82,13 +62,10 @@ function saveWorkouts() {
 
         return true;
     } catch (error) {
-        console.error("Could not save workouts:", error);
         alert("The workout could not be saved.");
         return false;
     }
 }
-
-/* DISPLAY WORKOUTS */
 
 function createWorkoutElement(workout, originalIndex) {
     const item = document.createElement("li");
@@ -105,12 +82,11 @@ function createWorkoutElement(workout, originalIndex) {
     const name = document.createElement("strong");
     name.textContent = workout.exercise;
 
-    const duration = document.createElement("small");
+    const details = document.createElement("small");
+    details.textContent =
+        `${workout.duration} minutes • ${workout.date}`;
 
-duration.textContent =
-    `${workout.duration} minutes • ${workout.date}`;
-
-    info.append(name, duration);
+    info.append(name, details);
 
     const editButton = document.createElement("button");
     editButton.type = "button";
@@ -119,9 +95,11 @@ duration.textContent =
 
     editButton.addEventListener("click", () => {
         editingWorkoutIndex = originalIndex;
-
         exerciseInput.value = workout.exercise;
         durationInput.value = workout.duration;
+
+        document.querySelector(".primary-button").textContent =
+            "Update Workout";
 
         exerciseInput.focus();
     });
@@ -129,15 +107,25 @@ duration.textContent =
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
     deleteButton.className = "delete-workout";
-    deleteButton.textContent = "×";
-
+    deleteButton.textContent = "Delete";
     deleteButton.setAttribute(
         "aria-label",
         `Delete ${workout.exercise}`
     );
 
     deleteButton.addEventListener("click", () => {
-        openDeleteModal(originalIndex);
+        const confirmed = confirm(
+            `Delete "${workout.exercise}"?`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        workouts.splice(originalIndex, 1);
+        saveWorkouts();
+        displayWorkouts();
+        updateStreak();
     });
 
     item.append(
@@ -153,8 +141,6 @@ duration.textContent =
 function displayWorkouts() {
     const today = getLocalDate();
 
-    workoutList.replaceChildren();
-
     const visibleWorkouts = workouts
         .map((workout, index) => ({
             workout,
@@ -165,27 +151,26 @@ function displayWorkouts() {
                 workout.date === selectedHistoryDate;
         });
 
+    workoutList.replaceChildren();
+
     visibleWorkouts.forEach(({ workout, index }) => {
         workoutList.appendChild(
-            createWorkoutElement(
-                workout,
-                index
-            )
+            createWorkoutElement(workout, index)
         );
     });
 
     const totalMinutes = visibleWorkouts.reduce(
-        (total, { workout }) => {
-            return total + Number(
-                workout.duration || 0
-            );
+        (total, item) => {
+            return total + Number(item.workout.duration || 0);
         },
         0
     );
 
-    workoutCount.textContent =
-        String(visibleWorkouts.length);
+    const todayCount = workouts.filter(workout => {
+        return workout.date === today;
+    }).length;
 
+    workoutCount.textContent = todayCount;
     totalMinutesSummary.textContent =
         `Total time: ${totalMinutes} minutes`;
 
@@ -193,28 +178,33 @@ function displayWorkouts() {
         visibleWorkouts.length > 0;
 
     if (showingAllWorkouts) {
-        activityHeading.textContent =
-            "All Activity";
+        activityHeading.textContent = "All Activity";
+        historyViewBadge.textContent = "ALL DATES";
+        showAllWorkouts.textContent = "View selected date";
     } else if (selectedHistoryDate === today) {
-        activityHeading.textContent =
-            "Today's Activity";
+        activityHeading.textContent = "Today's Activity";
+        historyViewBadge.textContent = "TODAY";
+        showAllWorkouts.textContent = "Show all";
     } else {
         activityHeading.textContent =
             `Activity on ${selectedHistoryDate}`;
+        historyViewBadge.textContent = "SELECTED DATE";
+        showAllWorkouts.textContent = "Show all";
     }
-}
 
-/* ADD AND EDIT WORKOUTS */
+    showAllWorkouts.setAttribute(
+        "aria-pressed",
+        String(showingAllWorkouts)
+    );
+}
 
 workoutForm.addEventListener("submit", event => {
     event.preventDefault();
 
     const exercise = exerciseInput.value.trim();
-    const duration = Number(
-        durationInput.value
-    );
+    const duration = Number(durationInput.value);
 
-    if (exercise === "") {
+    if (!exercise) {
         alert("Please enter an exercise name.");
         exerciseInput.focus();
         return;
@@ -225,31 +215,23 @@ workoutForm.addEventListener("submit", event => {
         duration < 1 ||
         duration > 1440
     ) {
-        alert(
-            "Duration must be between 1 and 1440 minutes."
-        );
-
+        alert("Duration must be between 1 and 1440 minutes.");
         durationInput.focus();
         return;
     }
 
-    const workoutDate =
-        editingWorkoutIndex === null
-            ? getLocalDate()
-            : workouts[editingWorkoutIndex].date;
-
-    const workoutData = {
+    const workout = {
         exercise,
         duration,
-        date: workoutDate
+        date: editingWorkoutIndex === null
+            ? getLocalDate()
+            : workouts[editingWorkoutIndex].date
     };
 
     if (editingWorkoutIndex === null) {
-        workouts.push(workoutData);
+        workouts.push(workout);
     } else {
-        workouts[editingWorkoutIndex] =
-            workoutData;
-
+        workouts[editingWorkoutIndex] = workout;
         editingWorkoutIndex = null;
     }
 
@@ -257,14 +239,14 @@ workoutForm.addEventListener("submit", event => {
         return;
     }
 
-    displayWorkouts();
-    updateCurrentStreak();
-
     workoutForm.reset();
+    document.querySelector(".primary-button").textContent =
+        "Add Workout";
+
+    displayWorkouts();
+    updateStreak();
     exerciseInput.focus();
 });
-
-/* MODULE 3 - HISTORY FILTER */
 
 historyDate.value = selectedHistoryDate;
 
@@ -277,81 +259,42 @@ historyDate.addEventListener("change", () => {
 });
 
 showAllWorkouts.addEventListener("click", () => {
-    showingAllWorkouts = true;
+    showingAllWorkouts = !showingAllWorkouts;
     displayWorkouts();
 });
 
-/* DELETE WORKOUTS */
+function saveHabits() {
+    const habitData = {
+        date: getLocalDate()
+    };
 
-function openDeleteModal(index) {
-    pendingDeleteIndex = index;
-    previousFocusedElement = document.activeElement;
+    habitCheckboxes.forEach((checkbox, index) => {
+        habitData[`habit${index}`] = checkbox.checked;
+    });
 
-    deleteModal.hidden = false;
-    confirmDelete.focus();
+    localStorage.setItem(
+        HABITS_KEY,
+        JSON.stringify(habitData)
+    );
+
+    savedHabits = habitData;
 }
 
-function closeDeleteModal() {
-    deleteModal.hidden = true;
-    pendingDeleteIndex = null;
+function updateHabitProgress() {
+    const completed = habitCheckboxes.filter(
+        checkbox => checkbox.checked
+    ).length;
 
-    if (
-        previousFocusedElement &&
-        typeof previousFocusedElement.focus === "function"
-    ) {
-        previousFocusedElement.focus();
-    }
+    const total = habitCheckboxes.length;
+    const percentage = total
+        ? completed / total * 100
+        : 0;
+
+    habitCount.textContent = `${completed} / ${total}`;
+    habitSummary.textContent =
+        `${completed} of ${total} completed`;
+    habitProgress.style.width = `${percentage}%`;
 }
-
-cancelDelete.addEventListener(
-    "click",
-    closeDeleteModal
-);
-
-deleteModal.addEventListener("click", event => {
-    if (event.target === deleteModal) {
-        closeDeleteModal();
-    }
-});
-
-confirmDelete.addEventListener("click", () => {
-    if (
-        pendingDeleteIndex === null ||
-        pendingDeleteIndex < 0 ||
-        pendingDeleteIndex >= workouts.length
-    ) {
-        closeDeleteModal();
-        return;
-    }
-
-    const deletedWorkout = workouts.splice(
-        pendingDeleteIndex,
-        1
-    )[0];
-
-    if (!saveWorkouts()) {
-        workouts.splice(
-            pendingDeleteIndex,
-            0,
-            deletedWorkout
-        );
-    }
-
-    displayWorkouts();
-    updateCurrentStreak();
-    closeDeleteModal();
-});
-
-document.addEventListener("keydown", event => {
-    if (
-        event.key === "Escape" &&
-        !deleteModal.hidden
-    ) {
-        closeDeleteModal();
-    }
-});
-
-/* DAILY HABITS */
 
 function loadHabits() {
     const today = getLocalDate();
@@ -365,59 +308,6 @@ function loadHabits() {
     updateHabitProgress();
 }
 
-function saveHabits() {
-    const updatedHabits = {
-        date: getLocalDate()
-    };
-
-    habitCheckboxes.forEach((checkbox, index) => {
-        updatedHabits[`habit${index}`] =
-            checkbox.checked;
-    });
-
-    try {
-        localStorage.setItem(
-            HABITS_KEY,
-            JSON.stringify(updatedHabits)
-        );
-
-        savedHabits = updatedHabits;
-        return true;
-    } catch (error) {
-        console.error("Could not save habits:", error);
-        alert("Your habit progress could not be saved.");
-        return false;
-    }
-}
-
-function updateHabitProgress() {
-    const totalHabits =
-        habitCheckboxes.length;
-
-    const completedHabits =
-        habitCheckboxes.filter(
-            checkbox => checkbox.checked
-        ).length;
-
-    habitCount.textContent =
-        `${completedHabits} / ${totalHabits}`;
-
-    habitSummary.textContent =
-        `${completedHabits} of ${totalHabits} completed`;
-
-    const percentage = totalHabits > 0
-        ? completedHabits / totalHabits * 100
-        : 0;
-
-    habitProgress.style.width =
-        `${percentage}%`;
-
-    habitProgress.setAttribute(
-        "aria-valuenow",
-        String(completedHabits)
-    );
-}
-
 habitCheckboxes.forEach(checkbox => {
     checkbox.addEventListener("change", () => {
         saveHabits();
@@ -425,38 +315,24 @@ habitCheckboxes.forEach(checkbox => {
     });
 });
 
-/* WORKOUT STREAK */
-
-function updateCurrentStreak() {
+function updateStreak() {
     const workoutDates = new Set(
-        workouts
-            .filter(workout => workout.date)
-            .map(workout => workout.date)
+        workouts.map(workout => workout.date)
     );
 
-    let currentDate = new Date();
+    const date = new Date();
     let streak = 0;
 
-    while (
-        workoutDates.has(
-            getLocalDate(currentDate)
-        )
-    ) {
+    while (workoutDates.has(getLocalDate(date))) {
         streak++;
 
-        currentDate.setDate(
-            currentDate.getDate() - 1
-        );
+        date.setDate(date.getDate() - 1);
     }
 
     streakCount.textContent =
-        `${streak} ${
-            streak === 1 ? "day" : "days"
-        }`;
+        `${streak} ${streak === 1 ? "day" : "days"}`;
 }
-
-/* START APPLICATION */
 
 displayWorkouts();
 loadHabits();
-updateCurrentStreak();
+updateStreak();
