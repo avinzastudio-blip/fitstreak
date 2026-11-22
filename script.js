@@ -2,6 +2,7 @@
 
 const WORKOUTS_KEY = "fitstreakWorkouts";
 const HABITS_KEY = "fitstreakHabits";
+const HABIT_HISTORY_KEY = "fitstreakHabitHistory";
 
 const workoutForm = document.getElementById("workoutForm");
 const exerciseInput = document.getElementById("exercise");
@@ -12,12 +13,9 @@ const emptyWorkouts = document.getElementById("emptyWorkouts");
 
 const historyDate = document.getElementById("historyDate");
 const showAllWorkouts = document.getElementById("showAllWorkouts");
-const totalMinutesSummary =
-    document.getElementById("totalMinutesSummary");
-const activityHeading =
-    document.getElementById("activityHeading");
-const historyViewBadge =
-    document.getElementById("historyViewBadge");
+const totalMinutesSummary = document.getElementById("totalMinutesSummary");
+const activityHeading = document.getElementById("activityHeading");
+const historyViewBadge = document.getElementById("historyViewBadge");
 
 const habitCheckboxes = [
     ...document.querySelectorAll(".habit")
@@ -28,8 +26,24 @@ const habitProgress = document.getElementById("habitProgress");
 const habitSummary = document.getElementById("habitSummary");
 const streakCount = document.getElementById("streakCount");
 
+const weeklyWorkoutCount =
+    document.getElementById("weeklyWorkoutCount");
+
+const weeklyMinutes =
+    document.getElementById("weeklyMinutes");
+
+const weeklyHabitCount =
+    document.getElementById("weeklyHabitCount");
+
+const weeklyChart =
+    document.getElementById("weeklyChart");
+
+const habitHistoryList =
+    document.getElementById("habitHistoryList");
+
 let workouts = loadData(WORKOUTS_KEY, []);
 let savedHabits = loadData(HABITS_KEY, {});
+let habitHistory = loadData(HABIT_HISTORY_KEY, {});
 
 let editingWorkoutIndex = null;
 let selectedHistoryDate = getLocalDate();
@@ -40,7 +54,7 @@ function loadData(key, fallback) {
         const saved = localStorage.getItem(key);
         return saved ? JSON.parse(saved) : fallback;
     } catch (error) {
-        console.error("Could not load data:", error);
+        console.error(`Could not load ${key}:`, error);
         return fallback;
     }
 }
@@ -51,6 +65,15 @@ function getLocalDate(date = new Date()) {
     const day = String(date.getDate()).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
+}
+
+function formatDate(dateString) {
+    const date = new Date(`${dateString}T00:00:00`);
+
+    return date.toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric"
+    });
 }
 
 function saveWorkouts() {
@@ -84,7 +107,7 @@ function createWorkoutElement(workout, originalIndex) {
 
     const details = document.createElement("small");
     details.textContent =
-        `${workout.duration} minutes • ${workout.date}`;
+        `${workout.duration} minutes • ${formatDate(workout.date)}`;
 
     info.append(name, details);
 
@@ -114,11 +137,7 @@ function createWorkoutElement(workout, originalIndex) {
     );
 
     deleteButton.addEventListener("click", () => {
-        const confirmed = confirm(
-            `Delete "${workout.exercise}"?`
-        );
-
-        if (!confirmed) {
+        if (!confirm(`Delete "${workout.exercise}"?`)) {
             return;
         }
 
@@ -126,6 +145,7 @@ function createWorkoutElement(workout, originalIndex) {
         saveWorkouts();
         displayWorkouts();
         updateStreak();
+        updateWeeklyProgress();
     });
 
     item.append(
@@ -171,6 +191,7 @@ function displayWorkouts() {
     }).length;
 
     workoutCount.textContent = todayCount;
+
     totalMinutesSummary.textContent =
         `Total time: ${totalMinutes} minutes`;
 
@@ -187,7 +208,8 @@ function displayWorkouts() {
         showAllWorkouts.textContent = "Show all";
     } else {
         activityHeading.textContent =
-            `Activity on ${selectedHistoryDate}`;
+            `Activity on ${formatDate(selectedHistoryDate)}`;
+
         historyViewBadge.textContent = "SELECTED DATE";
         showAllWorkouts.textContent = "Show all";
     }
@@ -240,11 +262,14 @@ workoutForm.addEventListener("submit", event => {
     }
 
     workoutForm.reset();
+
     document.querySelector(".primary-button").textContent =
         "Add Workout";
 
     displayWorkouts();
     updateStreak();
+    updateWeeklyProgress();
+
     exerciseInput.focus();
 });
 
@@ -263,21 +288,44 @@ showAllWorkouts.addEventListener("click", () => {
     displayWorkouts();
 });
 
+function getTodayHabitRecord() {
+    const today = getLocalDate();
+
+    if (habitHistory[today]) {
+        return habitHistory[today];
+    }
+
+    if (savedHabits.date === today) {
+        return savedHabits;
+    }
+
+    return {};
+}
+
 function saveHabits() {
-    const habitData = {
-        date: getLocalDate()
+    const today = getLocalDate();
+
+    const habitRecord = {
+        date: today
     };
 
     habitCheckboxes.forEach((checkbox, index) => {
-        habitData[`habit${index}`] = checkbox.checked;
+        habitRecord[`habit${index}`] =
+            checkbox.checked;
     });
+
+    habitHistory[today] = habitRecord;
+    savedHabits = habitRecord;
 
     localStorage.setItem(
         HABITS_KEY,
-        JSON.stringify(habitData)
+        JSON.stringify(habitRecord)
     );
 
-    savedHabits = habitData;
+    localStorage.setItem(
+        HABIT_HISTORY_KEY,
+        JSON.stringify(habitHistory)
+    );
 }
 
 function updateHabitProgress() {
@@ -286,6 +334,7 @@ function updateHabitProgress() {
     ).length;
 
     const total = habitCheckboxes.length;
+
     const percentage = total
         ? completed / total * 100
         : 0;
@@ -293,16 +342,17 @@ function updateHabitProgress() {
     habitCount.textContent = `${completed} / ${total}`;
     habitSummary.textContent =
         `${completed} of ${total} completed`;
-    habitProgress.style.width = `${percentage}%`;
+
+    habitProgress.style.width =
+        `${percentage}%`;
 }
 
 function loadHabits() {
-    const today = getLocalDate();
+    const todayRecord = getTodayHabitRecord();
 
     habitCheckboxes.forEach((checkbox, index) => {
         checkbox.checked =
-            savedHabits.date === today &&
-            savedHabits[`habit${index}`] === true;
+            todayRecord[`habit${index}`] === true;
     });
 
     updateHabitProgress();
@@ -312,6 +362,7 @@ habitCheckboxes.forEach(checkbox => {
     checkbox.addEventListener("change", () => {
         saveHabits();
         updateHabitProgress();
+        updateWeeklyProgress();
     });
 });
 
@@ -325,7 +376,6 @@ function updateStreak() {
 
     while (workoutDates.has(getLocalDate(date))) {
         streak++;
-
         date.setDate(date.getDate() - 1);
     }
 
@@ -333,6 +383,142 @@ function updateStreak() {
         `${streak} ${streak === 1 ? "day" : "days"}`;
 }
 
+function getStartOfWeek(date = new Date()) {
+    const result = new Date(date);
+    const day = result.getDay();
+    const difference = day === 0 ? -6 : 1 - day;
+
+    result.setDate(result.getDate() + difference);
+    result.setHours(0, 0, 0, 0);
+
+    return result;
+}
+
+function getWeekDates() {
+    const start = getStartOfWeek();
+
+    return Array.from({ length: 7 }, (_, index) => {
+        const date = new Date(start);
+        date.setDate(start.getDate() + index);
+        return getLocalDate(date);
+    });
+}
+
+function getHabitCompletedCount(record) {
+    return habitCheckboxes.filter((_, index) => {
+        return record && record[`habit${index}`] === true;
+    }).length;
+}
+
+function updateWeeklyProgress() {
+    const weekDates = getWeekDates();
+
+    const weekWorkouts = workouts.filter(workout => {
+        return weekDates.includes(workout.date);
+    });
+
+    const totalMinutes = weekWorkouts.reduce(
+        (total, workout) => {
+            return total + Number(workout.duration || 0);
+        },
+        0
+    );
+
+    const totalHabits = weekDates.reduce(
+        (total, date) => {
+            return total + getHabitCompletedCount(
+                habitHistory[date]
+            );
+        },
+        0
+    );
+
+    weeklyWorkoutCount.textContent =
+        weekWorkouts.length;
+
+    weeklyMinutes.textContent =
+        totalMinutes;
+
+    weeklyHabitCount.textContent =
+        totalHabits;
+
+    weeklyChart.replaceChildren();
+
+    const minutesByDate = weekDates.map(date => {
+        return workouts
+            .filter(workout => workout.date === date)
+            .reduce((total, workout) => {
+                return total + Number(workout.duration || 0);
+            }, 0);
+    });
+
+    const highestValue = Math.max(...minutesByDate, 1);
+
+    weekDates.forEach((date, index) => {
+        const column = document.createElement("div");
+        column.className = "chart-column";
+
+        const value = document.createElement("span");
+        value.className = "chart-value";
+        value.textContent = minutesByDate[index];
+
+        const track = document.createElement("div");
+        track.className = "chart-track";
+
+        const bar = document.createElement("div");
+        bar.className = "chart-bar";
+        bar.style.height =
+            `${minutesByDate[index] / highestValue * 100}%`;
+
+        const label = document.createElement("small");
+        label.textContent =
+            new Date(`${date}T00:00:00`)
+                .toLocaleDateString(undefined, {
+                    weekday: "short"
+                });
+
+        track.appendChild(bar);
+        column.append(value, track, label);
+        weeklyChart.appendChild(column);
+    });
+
+    updateHabitHistory();
+}
+
+function updateHabitHistory() {
+    const dates = Array.from(
+        { length: 7 },
+        (_, index) => {
+            const date = new Date();
+            date.setDate(date.getDate() - index);
+            return getLocalDate(date);
+        }
+    );
+
+    habitHistoryList.replaceChildren();
+
+    dates.forEach(date => {
+        const record = habitHistory[date] || {};
+        const completed = getHabitCompletedCount(record);
+
+        const item = document.createElement("li");
+
+        const dateText = document.createElement("span");
+        dateText.textContent =
+            date === getLocalDate()
+                ? "Today"
+                : formatDate(date);
+
+        const progressText = document.createElement("strong");
+        progressText.textContent =
+            `${completed} / ${habitCheckboxes.length}`;
+
+        item.append(dateText, progressText);
+        habitHistoryList.appendChild(item);
+    });
+}
+
 displayWorkouts();
 loadHabits();
 updateStreak();
+updateWeeklyProgress();

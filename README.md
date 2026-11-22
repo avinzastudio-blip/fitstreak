@@ -2,21 +2,24 @@
 
 ## Project Overview
 
-FitStreak is a responsive web application that helps users record workouts, track exercise duration, build healthy habits, and monitor daily progress.
+FitStreak is a responsive web application that helps users track workouts, monitor exercise duration, build healthy daily habits, and review their fitness progress.
 
-The project is built using HTML, CSS, JavaScript, and browser localStorage.
+The application uses HTML, CSS, JavaScript, and browser localStorage to save workout and habit data.
 
 ## Project Objectives
 
 - Create a user-friendly fitness dashboard.
-- Allow users to record workouts and exercise duration.
+- Allow users to record workouts.
+- Store exercise duration and workout dates.
 - Allow users to edit and delete workouts.
-- Help users track daily healthy habits.
-- Display workout counts and habit completion progress.
+- Track daily healthy habits.
+- Display workout counts and habit progress.
 - Calculate workout streaks.
 - Filter workout history by date.
 - Display total workout duration.
-- Store data in the browser using localStorage.
+- Show weekly progress.
+- Show recent habit history.
+- Deploy the project using GitHub Pages.
 
 ## Technologies Used
 
@@ -25,76 +28,102 @@ The project is built using HTML, CSS, JavaScript, and browser localStorage.
 - JavaScript
 - Browser localStorage
 - Google Fonts
+- GitHub Pages
 
-## Main Sections
+## Main Project Sections
 
-### Navigation Bar
+### 1. Navigation Bar
 
 The navigation bar contains links to:
 
 - Dashboard
 - Workouts
 - Habits
+- Progress
 
-### Hero Section
+### 2. Hero Section
 
-The hero section introduces FitStreak and contains a button that takes the user to the workout tracker.
+The hero section introduces FitStreak and contains:
 
-### Dashboard Statistics
+- Project introduction
+- Fitness motivation message
+- Track a workout button
+
+### 3. Dashboard Statistics
 
 The dashboard displays:
 
 - Today's workout count
-- Daily habit progress
+- Daily habit completion
 - Current workout streak
 
-### Workout Tracker
+### 4. Workout Tracker
 
 Users can:
 
+- Add a workout.
 - Enter an exercise name.
 - Enter workout duration.
-- Add a new workout.
 - Edit an existing workout.
-- Delete a workout.
-- View workouts by date.
+- Delete an existing workout.
+- Filter workouts by date.
 - View all saved workouts.
-- See the total workout minutes for the selected view.
+- See total workout minutes.
+- Save workout data in localStorage.
 
-### Daily Habits
+### 5. Daily Habits
 
-The habit section contains three daily habits:
+The application includes three daily habits:
 
 - Drink enough water
 - Exercise for 20 minutes
 - Sleep on time
 
-The application displays:
+The habit section displays:
 
 - Completed habit count
-- Habit completion percentage
-- Progress bar
-- Saved habit status
+- Total number of habits
+- Completion progress bar
+- Saved daily habit status
 
-### Why FitStreak Section
+### 6. Weekly Progress
 
-This section explains the main benefits of the application:
+The weekly progress section displays:
+
+- Total workouts for the current week.
+- Total workout minutes.
+- Total completed habits.
+- Workout minutes for each day.
+- A weekly workout progress chart.
+
+### 7. Habit History
+
+The habit history section displays:
+
+- Today's habit progress.
+- Previous days' habit progress.
+- Completed habits out of total habits.
+- The last seven days of habit activity.
+
+### 8. Why FitStreak Section
+
+This section explains the main benefits of FitStreak:
 
 - Track progress
 - Build healthy habits
 - Stay motivated
 
-### How It Works Section
+### 9. How It Works Section
 
-The application workflow is divided into three steps:
+The application works through three simple steps:
 
 1. Log your workout.
 2. Complete your habits.
 3. Keep your streak alive.
 
-### Green Call-to-Action Section
+### 10. Green Call-to-Action Section
 
-The final call-to-action section encourages users to start tracking their workouts and habits.
+The final green section encourages users to start tracking their workouts and healthy habits.
 
 ## Workout Data Structure
 
@@ -104,5 +133,5 @@ Each workout is stored as an object:
 {
     exercise: "Running",
     duration: 30,
-    date: "2026-11-15"
+    date: "2026-11-22"
 }

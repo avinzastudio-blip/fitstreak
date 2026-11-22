@@ -21,6 +21,7 @@
             <a href="#dashboard">Dashboard</a>
             <a href="#workouts">Workouts</a>
             <a href="#habits">Habits</a>
+            <a href="#progress">Progress</a>
         </div>
     </nav>
 
@@ -39,7 +40,7 @@
                 </a>
             </div>
 
-            <div class="hero-decoration">✦</div>
+            <div class="hero-decoration" aria-hidden="true">✦</div>
         </section>
 
         <section class="stats-grid" aria-label="Fitness statistics">
@@ -75,7 +76,7 @@
                         <p>Log every workout and review your progress.</p>
                     </div>
 
-                    <span class="section-icon">💪</span>
+                    <span class="section-icon" aria-hidden="true">💪</span>
                 </div>
 
                 <form id="workoutForm">
@@ -83,8 +84,8 @@
                     <input
                         id="exercise"
                         type="text"
-                        placeholder="e.g. Walking, Yoga, Running"
                         maxlength="100"
+                        placeholder="e.g. Walking, Yoga, Running"
                         required
                     >
 
@@ -92,9 +93,9 @@
                     <input
                         id="duration"
                         type="number"
-                        placeholder="e.g. 30"
                         min="1"
                         max="1440"
+                        placeholder="e.g. 30"
                         required
                     >
 
@@ -105,7 +106,6 @@
 
                 <div class="history-controls">
                     <label for="historyDate">View workouts for</label>
-
                     <input type="date" id="historyDate">
 
                     <button
@@ -117,11 +117,7 @@
                     </button>
                 </div>
 
-                <p
-                    id="totalMinutesSummary"
-                    class="summary"
-                    aria-live="polite"
-                >
+                <p id="totalMinutesSummary" class="summary" aria-live="polite">
                     Total time: 0 minutes
                 </p>
 
@@ -146,18 +142,18 @@
                         <p>Small habits create big changes.</p>
                     </div>
 
-                    <span class="section-icon">🌿</span>
+                    <span class="section-icon" aria-hidden="true">🌿</span>
                 </div>
 
                 <div class="habit-summary">
                     <strong id="habitSummary">0 of 3 completed</strong>
-                    <span>✨</span>
+                    <span aria-hidden="true">✨</span>
                 </div>
 
                 <div class="habit-list">
                     <label class="habit-row">
                         <input type="checkbox" class="habit">
-                        <span>💧</span>
+                        <span aria-hidden="true">💧</span>
                         <div>
                             <strong>Drink enough water</strong>
                             <small>Stay hydrated throughout the day</small>
@@ -166,7 +162,7 @@
 
                     <label class="habit-row">
                         <input type="checkbox" class="habit">
-                        <span>🏋️</span>
+                        <span aria-hidden="true">🏋️</span>
                         <div>
                             <strong>Exercise for 20 minutes</strong>
                             <small>Give your body some movement</small>
@@ -175,7 +171,7 @@
 
                     <label class="habit-row">
                         <input type="checkbox" class="habit">
-                        <span>🌙</span>
+                        <span aria-hidden="true">🌙</span>
                         <div>
                             <strong>Sleep on time</strong>
                             <small>Make rest part of your routine</small>
@@ -189,82 +185,115 @@
             </article>
         </section>
 
-        <section class="features">
-            <div>
-                <span class="eyebrow">WHY FITSTREAK</span>
-                <h2>Everything you need to stay consistent.</h2>
+        <section class="module4-dashboard" id="progress">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">MODULE 4</span>
+                    <h2>Weekly Progress</h2>
+                    <p>See your workout and habit consistency at a glance.</p>
+                </div>
+
+                <span class="section-icon" aria-hidden="true">📈</span>
             </div>
+
+            <div class="weekly-summary">
+                <article>
+                    <span>Workouts</span>
+                    <strong id="weeklyWorkoutCount">0</strong>
+                </article>
+
+                <article>
+                    <span>Minutes</span>
+                    <strong id="weeklyMinutes">0</strong>
+                </article>
+
+                <article>
+                    <span>Habits</span>
+                    <strong id="weeklyHabitCount">0</strong>
+                </article>
+            </div>
+
+            <div class="progress-chart-block">
+                <h3>Workout minutes this week</h3>
+                <div id="weeklyChart" class="weekly-chart"></div>
+            </div>
+
+            <div class="habit-history-block">
+                <div class="history-title-row">
+                    <h3>Recent habit history</h3>
+                    <span class="history-note">Last 7 days</span>
+                </div>
+
+                <ul id="habitHistoryList" class="habit-history-list"></ul>
+            </div>
+        </section>
+
+        <section class="features">
+            <span class="eyebrow">WHY FITSTREAK</span>
+            <h2>Everything you need to stay consistent.</h2>
 
             <div class="feature-grid">
                 <article>
-                    <span>📊</span>
+                    <span aria-hidden="true">📊</span>
                     <h3>Track progress</h3>
                     <p>Record workouts, duration, streaks, and daily progress.</p>
                 </article>
 
                 <article>
-                    <span>🌱</span>
+                    <span aria-hidden="true">🌱</span>
                     <h3>Build habits</h3>
                     <p>Use a simple checklist to build healthy routines.</p>
                 </article>
 
                 <article>
-                    <span>✨</span>
+                    <span aria-hidden="true">✨</span>
                     <h3>Stay motivated</h3>
                     <p>Celebrate your consistency one day at a time.</p>
                 </article>
             </div>
         </section>
-<section class="how-it-works">
-    <div class="section-heading">
-        <div>
-            <span class="eyebrow">HOW IT WORKS</span>
-            <h2>Start with one small step.</h2>
-        </div>
-    </div>
 
-    <div class="steps-grid">
-        <article class="step-card">
-            <span class="step-number">01</span>
-            <h3>Log your workout</h3>
-            <p>
-                Add an exercise and record how many minutes you trained.
-            </p>
-        </article>
+        <section class="how-it-works">
+            <div class="section-heading">
+                <div>
+                    <span class="eyebrow">HOW IT WORKS</span>
+                    <h2>Start with one small step.</h2>
+                </div>
+            </div>
 
-        <article class="step-card">
-            <span class="step-number">02</span>
-            <h3>Complete your habits</h3>
-            <p>
-                Check off the healthy habits you complete during the day.
-            </p>
-        </article>
+            <div class="steps-grid">
+                <article class="step-card">
+                    <span class="step-number">01</span>
+                    <h3>Log your workout</h3>
+                    <p>Add an exercise and record how many minutes you trained.</p>
+                </article>
 
-        <article class="step-card">
-            <span class="step-number">03</span>
-            <h3>Keep your streak alive</h3>
-            <p>
-                Return each day, review your progress, and keep moving forward.
-            </p>
-        </article>
-    </div>
-</section>
+                <article class="step-card">
+                    <span class="step-number">02</span>
+                    <h3>Complete your habits</h3>
+                    <p>Check off the healthy habits you complete during the day.</p>
+                </article>
 
-<section class="green-cta">
-    <div>
-        <span class="eyebrow">YOUR NEXT STEP STARTS HERE</span>
+                <article class="step-card">
+                    <span class="step-number">03</span>
+                    <h3>Keep your streak alive</h3>
+                    <p>Return each day, review your progress, and keep moving forward.</p>
+                </article>
+            </div>
+        </section>
 
-        <h2>Ready to build your FitStreak?</h2>
+        <section class="green-cta">
+            <div>
+                <span class="eyebrow">YOUR NEXT STEP STARTS HERE</span>
+                <h2>Ready to build your FitStreak?</h2>
+                <p>Make today count with one workout and one healthy habit.</p>
+            </div>
 
-        <p>
-            Make today count with one workout and one healthy habit.
-        </p>
-    </div>
+            <a href="#workouts" class="cta-button">
+                Start tracking <span>→</span>
+            </a>
+        </section>
 
-    <a href="#workouts" class="cta-button">
-        Start tracking <span>→</span>
-    </a>
-</section>
         <footer>
             <p>Made with 💚 for a healthier you.</p>
             <small>One day at a time · One habit at a time</small>
